@@ -38,7 +38,7 @@
 import { defineComponent, onMounted, ref, reactive } from 'vue'
 import { Loader } from 'google-maps'
 import { api } from 'boot/axios'
-import { LocalStorage, useQuasar } from 'quasar'
+import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
@@ -178,7 +178,7 @@ export default defineComponent({
               if (mapConfig.keepCenter) map.panTo({ lat: lat, lng: lng })
               status.HDG = fixHDG(res.data.PLANE_HEADING_DEGREES_TRUE)
               status.GS = parseInt(res.data.GROUND_VELOCITY)
-              status.ALT = parseInt(res.data.PLAN_ALTITUDE)
+              status.ALT = parseInt(res.data.PLANE_ALTITUDE)
               resolve(addMaker(google, map, svg, lat, lng))
             }
             // console.log([lat, lng, rotation])
@@ -203,7 +203,7 @@ export default defineComponent({
     // Functions for button Click
 
     function resetPath () {
-      LocalStorage.removeItem('flightPlanCoordinates')
+      localStorage.removeItem('flightPlanCoordinates')
       flightPlanCoordinates = []
     }
 

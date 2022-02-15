@@ -10,7 +10,7 @@
       <br>
       <span>Web Build by renzhou</span>
       <br>
-      <span>v 0.1.0</span>
+      <span>v 0.1.1</span>
     </div>
 
   </q-page>
