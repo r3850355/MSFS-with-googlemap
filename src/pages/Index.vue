@@ -1,11 +1,15 @@
 <template>
   <q-page class="flex flex-center">
-    <!-- <img
-      alt="Quasar logo"
-      src="~assets/quasar-logo-vertical.svg"
-      style="width: 200px; height: 200px"
-    > -->
+
     <div>
+      <div class="text-center">
+        <img
+          alt="Quasar logo"
+          src="~assets/logo.png"
+          style="width: 200px; height: 200px"
+        >
+      </div>
+      <br>
       <span class="text-h4 text-weight-light">Fly with GoogleMap</span>
       <br>
       <span>Web Build by renzhou</span>

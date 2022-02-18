@@ -1,7 +1,7 @@
 <template>
   <q-page>
     <div class="q-pa-md row q-col-gutter-sm">
-      <div class="col-md-6 col-12">
+      <div class="col-12">
         <q-card class="my-card" flat>
           <q-card-section>
             <div class="text-overline">{{ $t('settings.title_language') }}</div>
