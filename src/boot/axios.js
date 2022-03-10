@@ -7,7 +7,12 @@ import axios from 'axios'
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
+
+// -- Current API URL --
 const url = `http://${window.location.host}`
+
+// -- Mock API address For Development --
+// const url = 'http://localhost:3000'
 // const url = 'http://192.168.1.102:5000'
 const api = axios.create({ baseURL: url })
 

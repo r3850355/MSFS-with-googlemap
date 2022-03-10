@@ -6,7 +6,7 @@ export default {
     map: 'Maps',
     instruments: 'Heading',
     radio: 'Radio',
-    avionics: 'Avionics',
+    avionics: 'AP',
     settings: 'Settings'
   },
   map: {

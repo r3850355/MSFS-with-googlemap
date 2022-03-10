@@ -29,7 +29,7 @@
       <q-btn round class="bg-white text-grey-8 q-mt-sm" size="md" dense icon="public" @click="changeMapType()"></q-btn>
     </q-page-sticky>
     <q-page-sticky position="bottom-left" :offset="[12, 18]">
-      <q-btn dense class="bg-white text-grey-8" icon="delete" @click="resetPath()"></q-btn>
+      <q-btn dense class="bg-white text-grey-8" icon="settings" @click="showBottomSheet()"></q-btn>
     </q-page-sticky>
   </div>
 </template>
@@ -43,6 +43,7 @@ import { useI18n } from 'vue-i18n'
 
 export default defineComponent({
   setup () {
+    const $q = useQuasar()
     const { t } = useI18n() // declear for vue-i18n
     const status = reactive({ HDG: '000', GS: 0, ALT: 0 }) // for showing status on map
     const mapConfig = reactive({
@@ -50,16 +51,14 @@ export default defineComponent({
       mapType: 'roadmap'
     })
     let map = null
-    let flightPlanCoordinates = reactive([]) // for record flight path
+    let flightPathRecord = reactive([]) // for record flight path
+    const flightPathRecordObject = []
 
     // async part
     onMounted(async () => {
-      const $q = useQuasar()
       const makers = [] // use for plane mark
-      const flightPath = [] // use for flight path
-
-      // get old-flight path from LocalStorage
-      if (localStorage.getItem('flightPlanCoordinates')) flightPlanCoordinates = JSON.parse(localStorage.getItem('flightPlanCoordinates'))
+      // use for flight path
+      let lastFlightPath = null
 
       // get APIKey from backend
       const googleMapAPIKey = await api.get('/key').catch(() => {
@@ -88,38 +87,59 @@ export default defineComponent({
           disableDefaultUI: true
         })
         // ---
+        // get old-flight path from LocalStorage and re-draw
+        if (localStorage.getItem('flightPathRecord')) {
+          flightPathRecord = JSON.parse(localStorage.getItem('flightPathRecord'))
+          let lastPoint = null
+          flightPathRecord.forEach(e => {
+            if (lastPoint) {
+              flightPathRecordObject.push(new google.maps.Polyline({
+                path: [lastPoint, e],
+                geodesic: true,
+                strokeColor: pathColor(e.alt),
+                strokeOpacity: 1,
+                strokeWeight: 2,
+                map: map
+              }))
+            }
+            lastPoint = e
+            lastFlightPath = e
+          })
+        }
 
         getMapData(google, map)
 
         setInterval(() => {
           getMapData(google, map)
-        }, 3000)
+        }, 10000)
       })
 
-      function addMaker (google, map, svg, lat, lng) {
+      function addMaker (google, map, svg, lat, lng, alt) {
+        // aircraft mark
         clearMaker()
-        flightPlanCoordinates.push({ lat: lat, lng: lng })
-        localStorage.setItem('flightPlanCoordinates', JSON.stringify(flightPlanCoordinates))
-        flightPath.push(new google.maps.Polyline({
-          path: flightPlanCoordinates,
-          geodesic: true,
-          strokeColor: '#66cde1',
-          strokeOpacity: 0.8,
-          strokeWeight: 2,
-          map: map
-        }))
         makers.push(new google.maps.Marker({
           position: { lat: lat, lng: lng },
           map: map,
           icon: svg
         }))
+
+        // flight path
+        const flightPath = { lat: lat, lng: lng, alt: alt }
+        flightPathRecordObject.push(new google.maps.Polyline({
+          path: [lastFlightPath, flightPath],
+          geodesic: true,
+          strokeColor: pathColor(alt),
+          strokeOpacity: 1,
+          strokeWeight: 2,
+          map: map
+        }))
+        lastFlightPath = flightPath
+        flightPathRecord.push(flightPath)
+        localStorage.setItem('flightPathRecord', JSON.stringify(flightPathRecord))
       }
 
       function clearMaker () {
         makers.forEach(e => {
-          e.setMap(null)
-        })
-        flightPath.forEach(e => {
           e.setMap(null)
         })
       }
@@ -179,7 +199,7 @@ export default defineComponent({
               status.HDG = fixHDG(res.data.PLANE_HEADING_DEGREES_TRUE)
               status.GS = parseInt(res.data.GROUND_VELOCITY)
               status.ALT = parseInt(res.data.PLANE_ALTITUDE)
-              resolve(addMaker(google, map, svg, lat, lng))
+              resolve(addMaker(google, map, svg, lat, lng, res.data.PLANE_ALTITUDE))
             }
             // console.log([lat, lng, rotation])
           }).catch(err => {
@@ -198,13 +218,26 @@ export default defineComponent({
       function fixHDG (value) {
         return parseInt(value * 57.295779513).toString().padStart(3, '0')
       }
+
+      function pathColor (alt) {
+        let color = '#FFFFF'
+        if (alt <= 5000) color = `rgb(255, ${150 + parseInt(alt * 100 / 5000)}, 0)`
+        if (alt > 5000 && alt <= 17000) color = `rgb(${255 - parseInt((alt - 5000) * 255 / 12000)}, 255, 0)`
+        if (alt > 17000 && alt < 29000) color = `rgb(0, 255, ${parseInt((alt - 17000) * 255 / 12000)})`
+        if (alt >= 29000 && alt < 41000) color = `rgb(0, ${255 - parseInt((alt - 29000) * 255 / 12000)}, 255)`
+        if (alt >= 41000) color = 'rgb(0, 0, 255)'
+        return color
+      }
     })
 
     // Functions for button Click
 
     function resetPath () {
-      localStorage.removeItem('flightPlanCoordinates')
-      flightPlanCoordinates = []
+      localStorage.removeItem('flightPathRecord')
+      flightPathRecord = []
+      flightPathRecordObject.forEach(e => {
+        e.setMap(null)
+      })
     }
 
     function changeMapType () {
@@ -217,12 +250,48 @@ export default defineComponent({
       }
     }
 
+    function drawBushTrip () {
+      // 123
+      console.log()
+    }
+
+    function showBottomSheet () {
+      $q.bottomSheet({
+        dark: true,
+        message: 'Map Settings',
+        actions: [
+          {
+            label: 'Delete Path',
+            icon: 'delete',
+            id: 'bs_deletePath'
+          },
+          {
+            label: 'Test',
+            icon: 'file_download',
+            id: 'bs_test'
+          }
+        ]
+      }).onOk(e => {
+        console.log(e)
+        switch (e.id) {
+          case 'bs_deletePath':
+            resetPath()
+            break
+          case 'bs_test':
+            drawBushTrip()
+            break
+        }
+      })
+    }
+
     return {
       status,
       mapConfig,
-      flightPlanCoordinates,
+      flightPathRecord,
       resetPath,
-      changeMapType
+      changeMapType,
+      showBottomSheet,
+      drawBushTrip
     }
   },
   mounted () {
