@@ -3,8 +3,9 @@ import messages from 'src/i18n'
 
 export default ({ app }) => {
   const i18n = createI18n({
-    locale: localStorage.getItem('language') ?? 'en-US',
+    locale: localStorage.getItem('language') ?? 'zh-TW',
     globalInjection: true,
+    legacy: false,
     messages
   })
 

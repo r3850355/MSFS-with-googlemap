@@ -16,7 +16,7 @@
       >
         <q-route-tab name="map" icon="map" :label="$t('nav.map')" to="/map" />
         <q-route-tab name="instruments" icon="moving" :label="$t('nav.instruments')" to="/instruments" />
-        <q-route-tab name="radio" icon="radio" :label="$t('nav.radio')" to="/radio" />
+        <!-- <q-route-tab name="radio" icon="radio" :label="$t('nav.radio')" to="/radio"/> -->
         <q-route-tab name="avionics" icon="flight" :label="$t('nav.avionics')" to="/avionics" />
         <q-route-tab name="settings" icon="settings" :label="$t('nav.settings')" to="/settings" />
       </q-tabs>

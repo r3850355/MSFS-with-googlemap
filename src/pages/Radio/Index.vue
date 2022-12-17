@@ -19,7 +19,7 @@
               <div class="text-overline">COM1</div>
               <q-slider v-model="com1stby" :min="118" :max="136" color="blue-4"/>
               <div class="text-overline">COM1 Decimal</div>
-              <q-slider v-model="com1stbyDecimal" :min="0" :max="95" color="blue-4"/>
+              <q-slider v-model="com1stbyDecimal" :min="0" :max="990" :step="5" color="blue-4"/>
               <q-btn color="grey-9" rounded class="full-width" @click="setCOM(1)">{{ $t('instruments.button_set') }}</q-btn>
             </div>
             <div v-show="comSelect === 2">
@@ -27,8 +27,8 @@
               <div class="text-overline">COM2</div>
               <q-slider v-model="com2stby" :min="118" :max="136" color="blue-4"/>
               <div class="text-overline">COM2 Decimal</div>
-              <q-slider v-model="com2stbyDecimal" :min="0" :max="95" color="blue-4"/>
-              <q-btn color="grey-9" push class="full-width" @click="setCOM(2)">{{ $t('instruments.button_set') }}</q-btn>
+              <q-slider v-model="com2stbyDecimal" :min="0" :max="990" :step="5" color="blue-4"/>
+              <q-btn color="grey-9" rounded class="full-width" @click="setCOM(2)">{{ $t('instruments.button_set') }}</q-btn>
             </div>
           </q-card-section>
         </q-card>
@@ -39,11 +39,11 @@
           <q-card-section>
             <div class="text-h6">{{ $t('instruments.title_frequency_NAV') }}</div>
             <div class="text-overline">NAV1 -> {{ nav1 }}</div>
-            <q-slider v-model="nav1" :min="108" :max="117.9" :step="0.1" color="blue-7" @change="changeEvent('nav1', nav1)"/>
+            <q-slider v-model="nav1" :min="108" :max="117.9" :step="0.05" color="blue-7" @change="changeEvent('nav1', nav1)"/>
           </q-card-section>
           <q-card-section>
             <div class="text-overline">NAV2 -> {{ nav2 }}</div>
-            <q-slider v-model="nav2" :min="108" :max="117.9" :step="0.1" color="blue-8" @change="changeEvent('nav2', nav2)"/>
+            <q-slider v-model="nav2" :min="108" :max="117.9" :step="0.05" color="blue-8" @change="changeEvent('nav2', nav2)"/>
           </q-card-section>
       </q-card>
      </div>
@@ -97,7 +97,7 @@ export default defineComponent({
         value = parseInt(value * 100 - 10000, 16)
       }
       // console.log(cmd[target], value)
-      api.post(`/event/${cmd[target]}/trigger`, { value_to_use: value })
+      api.post(`/api/event/${cmd[target]}`, { value_to_use: value })
     },
     clickEvent (target, value) {
       const getCMD = {
@@ -105,7 +105,7 @@ export default defineComponent({
         vorobs1: 'NAV_OBS:1',
         vorobs2: 'NAV_OBS:2'
       }
-      api.get(`/datapoint/${getCMD[target]}/get`).then(res => {
+      api.get(`/api/get/${getCMD[target]}`).then(res => {
         let fix = res.data
         if (target === 'heading') {
           fix = fix * 57.295779513

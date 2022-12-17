@@ -29,7 +29,7 @@ export default defineComponent({
   },
   methods: {
     triggerEvent (cmd) {
-      api.post(`/event/${cmd}/mobiflight`)
+      api.post(`/api/mobiflight/${cmd}`)
     },
     goMobiFlight () {
       window.open('https://www.mobiflight.com/en/index.html', '_blank')

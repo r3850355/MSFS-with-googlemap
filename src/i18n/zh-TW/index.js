@@ -1,7 +1,7 @@
 export default {
   nav: {
     map: '地圖',
-    instruments: '航向',
+    instruments: '儀表',
     radio: '通訊',
     avionics: '航電',
     settings: '設定'
@@ -10,7 +10,7 @@ export default {
     error_message_nokey: '錯誤: 缺少 GoogleMap API 金鑰'
   },
   instruments: {
-    title_instruments: '航向',
+    title_instruments: '儀表',
     button_set_now_heading: '設為目前航向',
     button_step_10: '精度： 10',
     title_frequency_COM: '頻率 - COM',

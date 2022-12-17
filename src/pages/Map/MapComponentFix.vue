@@ -4,24 +4,34 @@
     </div>
     <q-page-sticky position="top-left" :offset="[18, 18]">
         <div>
-          <span>ALT </span>
-          <span class="text-h6">{{ filghtStatus.ALT }}</span>
-          <span>ft</span>
+          <q-badge color="orange" class="q-mr-sm">
+            <span>{{ `${AircraftTitle}` }}</span>
+          </q-badge>
+          <q-badge color="blue" class="q-mr-sm">
+            <span>{{ `GS: ${filghtStatus.GS}` }}</span>
+          </q-badge>
+          <q-badge color="green"  class="q-mr-sm">
+            <span>{{ `HDG: ${filghtStatus.HDG}` }}</span>
+          </q-badge>
+          <q-badge color="red" class="q-mr-sm">
+            <span>{{ `${filghtStatus.ALT} ft` }}</span>
+          </q-badge>
         </div>
       </q-page-sticky>
-      <q-page-sticky position="top" :offset="[18, 18]">
+      <!-- <q-page-sticky position="top" :offset="[18, 18]">
         <div class="text-center">
-          <span>HDG </span>
-          <br>
-          <span class="text-h4">{{ filghtStatus.HDG }}</span>
+          <q-badge color="blue">
+            <span>{{ `Heading: ${filghtStatus.HDG}` }}</span>
+          </q-badge>
         </div>
       </q-page-sticky>
       <q-page-sticky position="top-right" :offset="[18, 18]">
         <div>
-          <span>GS </span>
-          <span class="text-h6">{{ filghtStatus.GS }}</span>
+          <q-badge color="blue">
+            <span>{{ `${filghtStatus.ALT} ft` }}</span>
+          </q-badge>
         </div>
-      </q-page-sticky>
+      </q-page-sticky> -->
       <q-page-sticky position="bottom-right" :offset="[10, 18]">
         <q-btn round class="bg-white text-grey-8" size="md" dense :icon="mapConfig.keepCenter ? 'gps_fixed' : 'gps_not_fixed'" @click="mapConfig.keepCenter = !mapConfig.keepCenter"></q-btn>
         <br>
@@ -53,6 +63,7 @@ export default defineComponent({
     await this.mapInit()
     this.mapDrawPastPath()
     this.getFilghtData()
+    this.getAircraftTitle()
     setInterval(() => this.getFilghtData(), this.mapLoadFreq)
   },
   data () {
@@ -68,6 +79,7 @@ export default defineComponent({
       mapFlightPath: [],
       //
       filghtStatus: { HDG: 0, GS: 0, ALT: 0 },
+      AircraftTitle: '',
       mapConfig: { keepCenter: true, mapType: 'roadmap' }
     }
   },
@@ -267,7 +279,7 @@ export default defineComponent({
       })
     },
     async getFilghtData () {
-      api.get('/dataset/navigation/').then(res => {
+      api.get('/api/navigation').then(res => {
         const data = {
           lat: res.data.PLANE_LATITUDE,
           lng: res.data.PLANE_LONGITUDE,
@@ -276,6 +288,7 @@ export default defineComponent({
           GS: parseInt(res.data.GROUND_VELOCITY),
           ALT: parseInt(res.data.PLANE_ALTITUDE)
         }
+        if (data.lat.toFixed(5) === '0.00041' && data.lng.toFixed(5) === '0.01397') return false
         this.mapDrawPlane(data)
         this.mapDrawPath(data)
         this.filghtStatus = data
@@ -294,6 +307,11 @@ export default defineComponent({
         //   position: 'center'
         // })
         return { data: null }
+      })
+    },
+    getAircraftTitle () {
+      api.get('/api/get/TITLE').then(res => {
+        this.AircraftTitle = res.data
       })
     },
     __fixHDG (value) {
